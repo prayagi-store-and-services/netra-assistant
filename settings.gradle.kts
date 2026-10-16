@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "netra-trikal-assistant"
+rootProject.name = "netra-assistant"
 include(":app")
