@@ -47,7 +47,7 @@ class HandsFreeService : Service() {
         )
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("Netra Trikal Assistant is listening")
+            .setContentTitle("Netra Assistant is listening")
             .setContentText("Say \"Netra\" or \"Trikal\" first. The microphone is on.")
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(android.R.drawable.ic_media_pause, "Stop", stop).build())
