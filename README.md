@@ -1,4 +1,4 @@
-# Netra Trikal Assistant
+# Netra Assistant
 
 Offline, on-device personal assistant for Android by Prayagi Store and Services. Two assistants in one app: NETRA (warm) and TRIKAL (brief). Part of the [Netra Eco](https://prayagi-store-and-services.github.io/netra-eco/) family.
 
@@ -6,7 +6,7 @@ This is a separate app from [Netra Trikaal](https://github.com/prayagi-store-and
 
 ## Status: rolling beta
 
-Pre-releases are published on the [releases page](https://github.com/prayagi-store-and-services/netra-trikal-assistant/releases) only when CI is green. Today it is voice-first: tap the mic and speak (offline recognition where the phone supports it, otherwise Unavailable unless you opt in to online voice), and it answers aloud about battery (level, temperature, rough time left), volume and brightness, with persona-specific replies. Typing is a fallback. Hands-free mode (one-tap switch, screen off, notification with Stop) is in 0.3.1. Saved memory, Family Bridge and on-device AI are planned. Dates are in the [milestones](https://github.com/prayagi-store-and-services/netra-trikal-assistant/milestones). Public release target: 1 April 2027.
+Pre-releases are published on the [releases page](https://github.com/prayagi-store-and-services/netra-assistant/releases) only when CI is green. Today it is voice-first: tap the mic and speak (offline recognition where the phone supports it, otherwise Unavailable unless you opt in to online voice), and it answers aloud about battery (level, temperature, rough time left), volume and brightness, with persona-specific replies. Typing is a fallback. Hands-free mode (one-tap switch, screen off, notification with Stop) is in 0.3.1. Saved memory, Family Bridge and on-device AI are planned. Dates are in the [milestones](https://github.com/prayagi-store-and-services/netra-assistant/milestones). Public release target: 1 April 2027.
 
 ## Principles
 
