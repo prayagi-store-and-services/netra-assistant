@@ -1,12 +1,12 @@
-# Netravan
+# Netra One
 
-Netravan is the offline, on-device voice command assistant of the [Netra Ecosystem](https://prayagi-store-and-services.github.io/netra-eco/), by Prayagi Store and Services. Its purpose: one assistant that answers from real phone readings and sends commands - first to the phone itself, then to every Netra family app.
+Netra One is the offline, on-device voice command assistant of the [Netra Ecosystem](https://prayagi-store-and-services.github.io/netra-eco/), by Prayagi Store and Services. Its purpose: one assistant that answers from real phone readings and sends commands - first to the phone itself, then to every Netra family app.
 
-This is a separate app from [Netra Trikaal](https://github.com/prayagi-store-and-services/netra-trikaal), the astrology app. Netravan has no astrology features and holds no birth details.
+This is a separate app from [Netra Trikaal](https://github.com/prayagi-store-and-services/netra-trikaal), the astrology app. Netra One has no astrology features and holds no birth details.
 
 ## Status: rolling beta
 
-Pre-releases are published on the [releases page](https://github.com/prayagi-store-and-services/netra-assistant/releases) only when CI is green. Today it is voice-first: tap the mic and speak (offline recognition where the phone supports it, otherwise Unavailable unless you opt in to online voice), and it answers aloud about battery (level, temperature, rough time left), volume and brightness. Typing is a fallback. Hands-free mode (one-tap switch, screen off, notification with Stop) works with the wake name "Netravan" or "Netra". Next betas add phone commands (call, alarm, open app, search, SMS) with confirm-before-act, then a command bridge to the other Netra apps. Dates are in the [milestones](https://github.com/prayagi-store-and-services/netra-assistant/milestones). Public release target: 1 April 2027.
+Pre-releases are published on the [releases page](https://github.com/prayagi-store-and-services/netra-assistant/releases) only when CI is green. Today it is voice-first: tap the mic and speak (offline recognition where the phone supports it, otherwise Unavailable unless you opt in to online voice), and it answers aloud about battery (level, temperature, rough time left), volume and brightness. Typing is a fallback. Hands-free mode (one-tap switch, screen off, notification with Stop) works with the wake name "Netra One" or "Netra". Next betas add phone commands (call, alarm, open app, search, SMS) with confirm-before-act, then a command bridge to the other Netra apps. Dates are in the [milestones](https://github.com/prayagi-store-and-services/netra-assistant/milestones). Public release target: 1 April 2027.
 
 ## Principles
 
