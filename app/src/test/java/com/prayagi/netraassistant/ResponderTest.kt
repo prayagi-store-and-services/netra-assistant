@@ -9,11 +9,11 @@ import org.junit.Test
 
 class ResponderTest {
     @Test fun unavailableIsShownHonestly() {
-        val t = Responder.batteryText(Persona.NETRAVAN, Result.Unavailable("x"))
+        val t = Responder.batteryText(Persona.NETRA_ONE, Result.Unavailable("x"))
         assertTrue(t.contains("Unavailable"))
     }
     @Test fun batteryValueShown() {
-        val t = Responder.batteryText(Persona.NETRAVAN, Result.Value(BatteryInfo(55, true)))
+        val t = Responder.batteryText(Persona.NETRA_ONE, Result.Value(BatteryInfo(55, true)))
         assertTrue(t.contains("55%") && t.contains("charge ho rahi"))
     }
 }

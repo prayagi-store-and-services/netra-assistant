@@ -1,9 +1,9 @@
 package com.prayagi.netraassistant.assistant
 
-/** One assistant, one voice: Netravan. Warm Hinglish. */
+/** One assistant, one voice: Netra One. Warm Hinglish. */
 enum class Persona(val displayName: String, val tagline: String) {
-    NETRAVAN("Netravan", "Aapka on-device command assistant");
+    NETRA_ONE("Netra One", "Aapka on-device command assistant");
 
     fun greeting(): String =
-        "Namaste, main Netravan hoon. Battery, volume ya brightness ke baare mein poochhiye."
+        "Namaste, main Netra One hoon. Battery, volume, brightness poochhiye, ya command dijiye: call, alarm, app kholo, search, SMS."
 }

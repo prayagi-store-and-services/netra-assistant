@@ -29,7 +29,7 @@ import java.util.Locale
 @Composable
 fun AppShell() {
     var tab by remember { mutableStateOf(0) }
-    val titles = listOf("Chat", "Permissions", "Privacy")
+    val titles = listOf("Chat", "Log", "Permissions", "Privacy")
     Scaffold(
         topBar = {
             Column {
@@ -55,7 +55,8 @@ fun AppShell() {
         ) {
             when (tab) {
                 0 -> ChatScreen()
-                1 -> PermissionsScreen()
+                1 -> LogScreen()
+                2 -> PermissionsScreen()
                 else -> PrivacyScreen()
             }
         }
@@ -70,7 +71,7 @@ private fun Header() {
             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Netravan", fontSize = 13.sp)
+            Text("Netra One", fontSize = 13.sp)
             Text("v${BuildConfigInfo.VERSION} | Netra Ecosystem", fontSize = 11.sp)
             Text(now, fontSize = 11.sp)
         }
