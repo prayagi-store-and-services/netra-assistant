@@ -21,7 +21,7 @@ import com.prayagi.netraassistant.assistant.VoiceCommand
 /**
  * Hands-free mode: keeps listening while the screen is off. Started by one tap in the app
  * (Android does not allow starting a microphone service from the background), stopped by the
- * notification's Stop button or the switch. Only speech that starts with "Netra" or "Trikal" is acted on.
+ * notification's Stop button or the switch. Only speech that starts with "Netravan" or "Netra" is acted on.
  */
 class HandsFreeService : Service() {
     private var engine: VoiceEngine? = null
@@ -47,8 +47,8 @@ class HandsFreeService : Service() {
         )
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("Netra Assistant is listening")
-            .setContentText("Say \"Netra\" or \"Trikal\" first. The microphone is on.")
+            .setContentTitle("Netravan is listening")
+            .setContentText("Say \"Netravan\" or \"Netra\" first. The microphone is on.")
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(android.R.drawable.ic_media_pause, "Stop", stop).build())
             .setOngoing(true)
@@ -61,7 +61,7 @@ class HandsFreeService : Service() {
         e.onResult = { raw ->
             val parsed = VoiceCommand.parse(raw)
             if (parsed.persona == null) {
-                HandsFree.lastStatus = "Ignored (no Netra/Trikal name): $raw"
+                HandsFree.lastStatus = "Ignored (no Netravan/Netra name): $raw"
                 relisten()
             } else {
                 misses = 0

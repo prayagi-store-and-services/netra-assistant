@@ -1,12 +1,9 @@
 package com.prayagi.netraassistant.assistant
 
-/** Two independent personalities: style only, same capabilities. */
+/** One assistant, one voice: Netravan. Warm Hinglish. */
 enum class Persona(val displayName: String, val tagline: String) {
-    NETRA("NETRA", "Warm and gentle"),
-    TRIKAL("TRIKAL", "Brief and direct");
+    NETRAVAN("Netravan", "Aapka on-device command assistant");
 
-    fun greeting(): String = when (this) {
-        NETRA -> "Namaste, main Netra hoon. Battery, volume ya brightness ke baare mein poochhiye."
-        TRIKAL -> "Trikal here. Ask: battery, volume, brightness."
-    }
+    fun greeting(): String =
+        "Namaste, main Netravan hoon. Battery, volume ya brightness ke baare mein poochhiye."
 }
