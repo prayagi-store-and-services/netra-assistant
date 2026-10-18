@@ -57,8 +57,9 @@ object Responder {
         is Result.Unavailable -> "Battery time: Unavailable (${r.reason})."
     }
 
-    fun greeting(p: Persona): String = "Namaste! Main aapki kya madad kar sakta hoon?"
+    fun greeting(p: Persona): String =
+        "Namaste! Main aapki kya madad kar sakta hoon? Battery/volume poochhiye ya command dijiye: call, alarm, app kholo, search, SMS."
 
     fun help(p: Persona): String =
-        "Main bata sakta hoon: battery level, temperature, battery kitne ghante chalegi, volume (badhana/ghatana), aur brightness."
+        "Main bata sakta hoon: battery level, temperature, battery kitne ghante chalegi, volume (badhana/ghatana), aur brightness. Aur commands: call karo, alarm lagao, app kholo, search karo, SMS likho - har command pehle aapki haan maangega."
 }
