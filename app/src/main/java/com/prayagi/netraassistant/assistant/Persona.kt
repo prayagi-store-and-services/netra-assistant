@@ -5,5 +5,5 @@ enum class Persona(val displayName: String, val tagline: String) {
     NETRAVAN("Netravan", "Aapka on-device command assistant");
 
     fun greeting(): String =
-        "Namaste, main Netravan hoon. Battery, volume ya brightness ke baare mein poochhiye."
+        "Namaste, main Netravan hoon. Battery, volume, brightness poochhiye, ya command dijiye: call, alarm, app kholo, search, SMS."
 }
