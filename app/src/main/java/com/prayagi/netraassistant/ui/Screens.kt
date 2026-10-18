@@ -56,7 +56,7 @@ fun ChatScreen() {
     val executor = remember { CommandExecutor(ctx.applicationContext) }
     val engine = remember { VoiceEngine(ctx.applicationContext) }
     DisposableEffect(Unit) { onDispose { engine.shutdown() } }
-    val persona = Persona.NETRAVAN
+    val persona = Persona.NETRA_ONE
     var input by remember { mutableStateOf("") }
     var speakReplies by remember { mutableStateOf(true) }
     var keepListening by remember { mutableStateOf(true) }
@@ -68,7 +68,7 @@ fun ChatScreen() {
     // One assistant, one conversation (encrypted storage comes later).
     val logs = remember {
         mapOf(
-            Persona.NETRAVAN to mutableStateListOf(Msg(false, Persona.NETRAVAN.greeting()))
+            Persona.NETRA_ONE to mutableStateListOf(Msg(false, Persona.NETRA_ONE.greeting()))
         )
     }
 
@@ -196,10 +196,10 @@ fun ChatScreen() {
         Text(engine.status, fontSize = 13.sp)
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(onClick = { }) { Text(Persona.NETRAVAN.displayName) }
+        Button(onClick = { }) { Text(Persona.NETRA_ONE.displayName) }
         OutlinedButton(onClick = { engine.hindi = !engine.hindi }) { Text(if (engine.hindi) "Hindi" else "English") }
     }
-    Text("${persona.tagline}. Hands-free mein pehle \"Netravan\" ya \"Netra\" boliye.", fontSize = 12.sp)
+    Text("${persona.tagline}. Hands-free mein pehle \"Netra One\" ya \"Netra\" boliye.", fontSize = 12.sp)
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Speak replies", fontSize = 13.sp)
         Switch(checked = speakReplies, onCheckedChange = { speakReplies = it; if (!it) engine.stopSpeaking() })
@@ -227,7 +227,7 @@ fun ChatScreen() {
         })
     }
     Text(
-        "Hands-free keeps the microphone on with a notification and uses battery. Say \"Netravan\" or \"Netra\" first; other speech is ignored. It stops on the notification Stop button, and it does not restart after a phone restart. Status: ${HandsFree.lastStatus}",
+        "Hands-free keeps the microphone on with a notification and uses battery. Say \"Netra One\" or \"Netra\" first; other speech is ignored. It stops on the notification Stop button, and it does not restart after a phone restart. Status: ${HandsFree.lastStatus}",
         fontSize = 12.sp
     )
     Text(
@@ -307,7 +307,7 @@ fun PrivacyScreen() {
         Text("Online voice is OFF unless you allow it in the dialog. If allowed, what you say is sent as audio by the phone's speech service to Google's servers. This app itself has no internet permission and sends nothing.")
         Text("Spoken replies use the phone's text-to-speech engine. Other music or videos pause while the assistant speaks.")
         Text("Messages are not saved after you close the app in this beta.")
-        Text("Commands (call, alarm, open app, search, SMS) only open the phone's own apps, and only after you confirm. Netravan sends nothing itself; the dialer, SMS app or browser then do their own work.")
+        Text("Commands (call, alarm, open app, search, SMS) only open the phone's own apps, and only after you confirm. Netra One sends nothing itself; the dialer, SMS app or browser then do their own work.")
         Text("The command log lives only until you close the app.")
         Text("Any future cloud or AI step that sends data will show exactly what is sent and where, and will need your explicit opt-in.")
     }
