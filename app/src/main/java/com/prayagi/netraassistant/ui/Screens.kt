@@ -38,6 +38,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prayagi.netraassistant.actions.DeviceActions
+import com.prayagi.netraassistant.actions.Result
+import com.prayagi.netraassistant.commands.ActionLog
+import com.prayagi.netraassistant.commands.CommandExecutor
+import com.prayagi.netraassistant.commands.CommandParser
+import com.prayagi.netraassistant.commands.PhoneCommand
 import com.prayagi.netraassistant.assistant.IntentParser
 import com.prayagi.netraassistant.assistant.Persona
 import com.prayagi.netraassistant.assistant.Responder
@@ -48,6 +53,7 @@ private data class Msg(val fromUser: Boolean, val text: String)
 fun ChatScreen() {
     val ctx = LocalContext.current
     val device = remember { DeviceActions(ctx.applicationContext) }
+    val executor = remember { CommandExecutor(ctx.applicationContext) }
     val engine = remember { VoiceEngine(ctx.applicationContext) }
     DisposableEffect(Unit) { onDispose { engine.shutdown() } }
     val persona = Persona.NETRAVAN
@@ -55,6 +61,7 @@ fun ChatScreen() {
     var speakReplies by remember { mutableStateOf(true) }
     var keepListening by remember { mutableStateOf(true) }
     var showOptIn by remember { mutableStateOf(false) }
+    var pendingCommand by remember { mutableStateOf<PhoneCommand?>(null) }
     var hasMic by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
     }
@@ -65,19 +72,63 @@ fun ChatScreen() {
         )
     }
 
+    fun speakThen(reply: String) {
+        if (speakReplies) {
+            engine.speak(reply) { if (keepListening && hasMic && !HandsFree.running && engine.canListen()) engine.startListening() }
+        } else if (keepListening && hasMic && !HandsFree.running && engine.canListen()) {
+            engine.startListening()
+        }
+    }
+
+    fun confirmWords(t: String) = t in listOf("haan", "ha", "han", "yes", "हाँ", "हां", "theek hai", "ठीक है", "bilkul", "बिल्कुल")
+    fun cancelWords(t: String) = t in listOf("nahi", "नहीं", "no", "cancel", "ruk jao", "रुक जाओ", "रुको", "band karo", "बंद करो")
+
     fun handle(raw: String) {
         val parsed = VoiceCommand.parse(raw)
         val p = persona
         val q = if (parsed.persona != null) parsed.text.ifBlank { "hello" } else parsed.text
         val log = logs.getValue(p)
         log.add(Msg(true, raw))
+        val low = q.trim().lowercase()
+        val pending = pendingCommand
+        if (pending != null) {
+            when {
+                confirmWords(low) -> {
+                    pendingCommand = null
+                    val line = when (val r = executor.run(pending)) {
+                        is Result.Value -> r.v
+                        is Result.Unavailable -> "Unavailable (${r.reason})"
+                    }
+                    ActionLog.add("RAN: ${pending.describe()} -> $line")
+                    log.add(Msg(false, line))
+                    speakThen(line)
+                }
+                cancelWords(low) -> {
+                    pendingCommand = null
+                    ActionLog.add("CANCELLED: ${pending.describe()}")
+                    val line = "Theek hai, cancel kar diya."
+                    log.add(Msg(false, line))
+                    speakThen(line)
+                }
+                else -> {
+                    val line = "Pehle iska jawab dijiye: ${pending.describe()}. Haan ya nahi?"
+                    log.add(Msg(false, line))
+                    speakThen(line)
+                }
+            }
+            return
+        }
+        val cmd = CommandParser.parse(q)
+        if (cmd != null) {
+            pendingCommand = cmd
+            val line = "${cmd.describe()}. Chalayen? Haan ya nahi boliye."
+            log.add(Msg(false, line))
+            speakThen(line)
+            return
+        }
         val reply = Responder.respondAll(p, IntentParser.parseAll(q), device)
         log.add(Msg(false, reply))
-        if (speakReplies) {
-            engine.speak(reply) { if (keepListening && hasMic && !HandsFree.running && engine.canListen()) engine.startListening() }
-        } else if (keepListening && hasMic && !HandsFree.running && engine.canListen()) {
-            engine.startListening()
-        }
+        speakThen(reply)
     }
     SideEffect { engine.onResult = { handle(it) } }
 
@@ -184,6 +235,29 @@ fun ChatScreen() {
             "spoken replies ${if (engine.ttsReady) "Available" else "Unavailable"}; Hindi voice ${if (engine.hindiTts) "Available" else "Unavailable"}.",
         fontSize = 12.sp
     )
+    pendingCommand?.let { pc ->
+        Text("Command confirm karein:", fontSize = 13.sp)
+        Text(pc.describe(), fontSize = 16.sp)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = {
+                pendingCommand = null
+                val line = when (val r = executor.run(pc)) {
+                    is Result.Value -> r.v
+                    is Result.Unavailable -> "Unavailable (${r.reason})"
+                }
+                ActionLog.add("RAN: ${pc.describe()} -> $line")
+                logs.getValue(persona).add(Msg(false, line))
+                speakThen(line)
+            }) { Text("Haan") }
+            OutlinedButton(onClick = {
+                pendingCommand = null
+                ActionLog.add("CANCELLED: ${pc.describe()}")
+                val line = "Theek hai, cancel kar diya."
+                logs.getValue(persona).add(Msg(false, line))
+                speakThen(line)
+            }) { Text("Nahi") }
+        }
+    }
     logs.getValue(persona).forEach { m ->
         Text((if (m.fromUser) "You: " else persona.displayName + ": ") + m.text)
     }
@@ -201,6 +275,18 @@ fun ChatScreen() {
 }
 
 @Composable
+fun LogScreen() {
+    Text("Command Log", fontSize = 18.sp)
+    if (ActionLog.entries.isEmpty()) {
+        Text("Abhi tak koi command nahi chala. Commands: call, alarm, app kholo, search, SMS - har ek pehle aapki haan maangega.")
+    }
+    ActionLog.entries.forEach { e ->
+        Text("${e.time} - ${e.line}", fontSize = 13.sp)
+    }
+    Text("Yeh log sirf is session ke liye hai; app band hone par mit jaata hai.", fontSize = 12.sp)
+}
+
+@Composable
 fun PermissionsScreen() {
     Text("Permissions", fontSize = 18.sp)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -208,6 +294,7 @@ fun PermissionsScreen() {
         Text("Battery: read through the standard battery broadcast. Why: to answer battery questions.")
         Text("Volume: uses the media volume controls. Why: to read or step volume.")
         Text("Brightness: read-only. Why: to report current brightness. Changing it needs a Settings permission that is not requested yet (Unavailable).")
+        Text("Alarms (SET_ALARM): lets the clock app set an alarm you dictate. Granted at install, no prompt.")
         Text("Not requested: internet, contacts, location, storage, accessibility.")
     }
 }
@@ -220,6 +307,8 @@ fun PrivacyScreen() {
         Text("Online voice is OFF unless you allow it in the dialog. If allowed, what you say is sent as audio by the phone's speech service to Google's servers. This app itself has no internet permission and sends nothing.")
         Text("Spoken replies use the phone's text-to-speech engine. Other music or videos pause while the assistant speaks.")
         Text("Messages are not saved after you close the app in this beta.")
+        Text("Commands (call, alarm, open app, search, SMS) only open the phone's own apps, and only after you confirm. Netravan sends nothing itself; the dialer, SMS app or browser then do their own work.")
+        Text("The command log lives only until you close the app.")
         Text("Any future cloud or AI step that sends data will show exactly what is sent and where, and will need your explicit opt-in.")
     }
 }
