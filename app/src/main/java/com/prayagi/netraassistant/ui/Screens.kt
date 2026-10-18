@@ -50,7 +50,7 @@ fun ChatScreen() {
     val device = remember { DeviceActions(ctx.applicationContext) }
     val engine = remember { VoiceEngine(ctx.applicationContext) }
     DisposableEffect(Unit) { onDispose { engine.shutdown() } }
-    var persona by remember { mutableStateOf(Persona.NETRA) }
+    val persona = Persona.NETRAVAN
     var input by remember { mutableStateOf("") }
     var speakReplies by remember { mutableStateOf(true) }
     var keepListening by remember { mutableStateOf(true) }
@@ -58,19 +58,17 @@ fun ChatScreen() {
     var hasMic by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
     }
-    // Separate conversation per persona (separate memories; encrypted storage comes later).
+    // One assistant, one conversation (encrypted storage comes later).
     val logs = remember {
         mapOf(
-            Persona.NETRA to mutableStateListOf(Msg(false, Persona.NETRA.greeting())),
-            Persona.TRIKAL to mutableStateListOf(Msg(false, Persona.TRIKAL.greeting()))
+            Persona.NETRAVAN to mutableStateListOf(Msg(false, Persona.NETRAVAN.greeting()))
         )
     }
 
     fun handle(raw: String) {
         val parsed = VoiceCommand.parse(raw)
-        val p = parsed.persona ?: persona
-        persona = p
-        val q = parsed.text.ifBlank { "hello" }
+        val p = persona
+        val q = if (parsed.persona != null) parsed.text.ifBlank { "hello" } else parsed.text
         val log = logs.getValue(p)
         log.add(Msg(true, raw))
         val reply = Responder.respondAll(p, IntentParser.parseAll(q), device)
@@ -147,16 +145,10 @@ fun ChatScreen() {
         Text(engine.status, fontSize = 13.sp)
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Persona.values().forEach { p ->
-            if (p == persona) {
-                Button(onClick = { persona = p }) { Text(p.displayName) }
-            } else {
-                OutlinedButton(onClick = { persona = p }) { Text(p.displayName) }
-            }
-        }
+        Button(onClick = { }) { Text(Persona.NETRAVAN.displayName) }
         OutlinedButton(onClick = { engine.hindi = !engine.hindi }) { Text(if (engine.hindi) "Hindi" else "English") }
     }
-    Text("${persona.tagline}. Say the name first to switch: \"Netra, battery\" or \"Trikal, volume up\".", fontSize = 12.sp)
+    Text("${persona.tagline}. Hands-free mein pehle \"Netravan\" ya \"Netra\" boliye.", fontSize = 12.sp)
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Speak replies", fontSize = 13.sp)
         Switch(checked = speakReplies, onCheckedChange = { speakReplies = it; if (!it) engine.stopSpeaking() })
@@ -184,7 +176,7 @@ fun ChatScreen() {
         })
     }
     Text(
-        "Hands-free keeps the microphone on with a notification and uses battery. Say \"Netra\" or \"Trikal\" first; other speech is ignored. It stops on the notification Stop button, and it does not restart after a phone restart. Status: ${HandsFree.lastStatus}",
+        "Hands-free keeps the microphone on with a notification and uses battery. Say \"Netravan\" or \"Netra\" first; other speech is ignored. It stops on the notification Stop button, and it does not restart after a phone restart. Status: ${HandsFree.lastStatus}",
         fontSize = 12.sp
     )
     Text(
