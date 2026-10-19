@@ -29,7 +29,7 @@ import java.util.Locale
 @Composable
 fun AppShell() {
     var tab by remember { mutableStateOf(0) }
-    val titles = listOf("Chat", "Log", "Permissions", "Privacy")
+    val titles = listOf("Home", "Log", "Permissions", "Privacy")
     Scaffold(
         topBar = {
             Column {
@@ -54,7 +54,7 @@ fun AppShell() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             when (tab) {
-                0 -> ChatScreen()
+                0 -> HomeScreen()
                 1 -> LogScreen()
                 2 -> PermissionsScreen()
                 else -> PrivacyScreen()
