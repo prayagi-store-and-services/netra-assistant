@@ -1,6 +1,6 @@
 # Netra One - Roadmap / Future Plans
 
-v0.7.0-beta.1 | Netra Ecosystem
+v0.5.0-beta.1 | Netra Ecosystem
 
 ## Vision (binding, Deepak 18 Oct 2026)
 
@@ -18,16 +18,14 @@ Netra One is the universal voice command center of the Netra Ecosystem. Every Ne
 ### Stage 0 - done (v0.4.0 / v0.5.0)
 Rename to Netra One (single voice, wake names "Netra One" / "Netra", incl. Devanagari), command layer: Call, SetAlarm, OpenApp (incl. Netra family), WebSearch, SMS - all confirm-before-act, with an in-app Action Log.
 
-### Stage 1 - done (v0.6.0-beta.1): hands-free-first redesign
+### Stage 1 - next PR: hands-free-first redesign
 - Mic permission granted => hands-free listening starts by default; persistent notification with Stop; a big visible listening state in the app.
 - Wake word "Netra One" (or "Netra") triggers listening; answer and confirmations are spoken; "haan" confirms, "nahi" cancels.
 - UI: one status view (listening / heard / acting / done), live transcript, last action with undo where possible, Action Log tab. No button that only pretends to work.
 - Feasibility: continuous SpeechRecognizer with a name filter is free and offline-capable but costs battery (honest estimate: noticeable drain, this is why it is opt-out and stops on reboot); a true low-power wake-word engine (e.g. Porcupine free tier) is a later option and adds native binary size.
 
-### Stage 2 - shipped in Netra One (v0.7.0-beta.1): Family Bridge outbound
+### Stage 2 - Family Bridge outbound
 Netra One sends commands to other Netra apps (broadcast intent contract, then content provider; accessibility as last-resort fallback). Each family app needs a small receiver - per-app work, owned per app.
-
-Shipped in v0.7.0-beta.1 (Netra One side): BridgeContract (broadcast action + extras + version), the BridgeSend command with confirm-before-act, and BRIDGE.md - the receiver spec for family apps. Content provider channel is the next refinement; accessibility stays last-resort. Receivers remain per-app work.
 
 ### Stage 3 - Family Bridge inbound
 Apps send announcement/result tasks to Netra One (battery alerts, sensor events) and Netra One speaks them and acts on replies.

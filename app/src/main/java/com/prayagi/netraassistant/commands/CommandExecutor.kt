@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.prayagi.netraassistant.actions.Result
-import com.prayagi.netraassistant.bridge.BridgeOutbound
 
 /** Runs a confirmed PhoneCommand by firing an Android intent. Nothing leaves this app. */
 class CommandExecutor(private val context: Context) {
@@ -53,9 +52,6 @@ class CommandExecutor(private val context: Context) {
             } else {
                 Result.Unavailable("is phone mein browser nahi mila")
             }
-        }
-        is PhoneCommand.BridgeSend -> {
-            BridgeOutbound(context).send(cmd.targetPackage, cmd.targetName, cmd.command, cmd.args)
         }
         is PhoneCommand.Sms -> {
             val i = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${cmd.number}"))
