@@ -1,5 +1,6 @@
 package com.prayagi.netraassistant.commands
 
+import com.prayagi.netraassistant.bridge.BridgeContract
 import java.util.Calendar
 
 /**
@@ -13,6 +14,7 @@ object CommandParser {
     private val openWords = listOf("kholo", "खोलो", "खोलिए", "open", "chalu", "चालू")
     private val searchWords = listOf("search", "सर्च", "khojo", "खोजो", "dhundo", "ढूंढो", "ढूंढिए")
     private val smsWords = listOf("sms", "message", "संदेश", "मैसेज", "एसएमएस")
+    private val bridgeWords = listOf("bridge", "ब्रिज")
     private val writeWords = listOf("likho", "लिखो", "लिखिए", "bhejo", "भेजो", "भेजिए", "send", "karo", "करो", "लगाओ", "lagao")
 
     private fun tokens(t: String): List<String> =
@@ -93,6 +95,25 @@ object CommandParser {
                 .removePrefix("ki").removePrefix("ke").removePrefix(":").trim()
                 .removePrefix("yeh").removePrefix("ye").trim()
             return PhoneCommand.Sms(num, body)
+        }
+
+        // Bridge to a Netra family app: "bridge eco battery-status", "battery ko bridge low-power bhejo"
+        if (has(tk, bridgeWords)) {
+            val words = low.replace(Regex("[^\\p{L}\\p{N}\\p{M} -]+"), " ").replace(Regex("\\s+"), " ").trim()
+            val toks = words.split(" ").filter { it.isNotEmpty() }
+            for ((name, pkg) in AppMap.apps) {
+                if (words.contains(name)) {
+                    val drop = bridgeWords + writeWords +
+                        listOf("command", "कमांड", "ko", "को", "mein", "में") + name.split(" ")
+                    val rest = toks.filter { it !in drop }
+                    if (rest.isEmpty()) return null
+                    val cmd = rest[0].replace('_', '-')
+                    if (!BridgeContract.isValidCommand(cmd)) return null
+                    val args = rest.drop(1).joinToString(" ")
+                    return PhoneCommand.BridgeSend(name.replaceFirstChar { it.uppercase() }, pkg, cmd, args)
+                }
+            }
+            return null
         }
 
         // Search: "search karo X", "X khojo"
