@@ -325,7 +325,7 @@ fun HomeScreen() {
 fun LogScreen() {
     Text("Command Log", fontSize = 18.sp)
     if (ActionLog.entries.isEmpty()) {
-        Text("Abhi tak koi command nahi chala. Commands: call, alarm, app kholo, search, SMS - har ek pehle aapki haan maangega.")
+        Text("Abhi tak koi command nahi chala. Commands: call, alarm, app kholo, search, SMS, Netra family bridge - har ek pehle aapki haan maangega.")
     }
     ActionLog.entries.forEach { e ->
         Text("${e.time} - ${e.line}", fontSize = 13.sp)
@@ -357,7 +357,7 @@ fun PrivacyScreen() {
         Text("Hands-free listens continuously while it is on, but only speech that starts with \"Netra One\" or \"Netra\" is acted on (plus a bare haan/nahi while a command confirmation waits). Everything else is discarded by the recognizer and never saved.")
         Text("Spoken replies use the phone's text-to-speech engine. Other music or videos pause while the assistant speaks.")
         Text("Messages are not saved after you close the app in this beta. Your hands-free on/off choice is the only setting kept on the phone.")
-        Text("Commands (call, alarm, open app, search, SMS) only open the phone's own apps, and only after you confirm. Netra One sends nothing itself; the dialer, SMS app or browser then do their own work.")
+        Text("Commands (call, alarm, open app, search, SMS, Netra family bridge) run only after you confirm. Phone commands open the phone's own apps; a bridge command goes as an on-device broadcast only to the Netra family app you named, and that app then does its own work. Netra One has no internet permission and sends nothing online.")
         Text("The command log lives only until you close the app.")
         Text("Any future cloud or AI step that sends data will show exactly what is sent and where, and will need your explicit opt-in.")
     }
