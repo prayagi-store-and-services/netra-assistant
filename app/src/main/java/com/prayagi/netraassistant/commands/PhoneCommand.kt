@@ -36,4 +36,9 @@ sealed class PhoneCommand {
     data class Sms(val number: String, val body: String) : PhoneCommand() {
         override fun describe() = "SMS khulega: $number ko" + if (body.isNotBlank()) ", likha hua: $body" else " (khali)"
     }
+
+    /** Sends a command to another Netra family app through the Family Bridge broadcast (Stage 2). */
+    data class BridgeSend(val targetName: String, val targetPackage: String, val command: String, val args: String) : PhoneCommand() {
+        override fun describe() = "$targetName ko bridge command bhejega: $command" + if (args.isNotBlank()) " $args" else ""
+    }
 }
