@@ -101,11 +101,15 @@ object CommandParser {
         if (has(tk, bridgeWords)) {
             val words = low.replace(Regex("[^\\p{L}\\p{N}\\p{M} -]+"), " ").replace(Regex("\\s+"), " ").trim()
             val toks = words.split(" ").filter { it.isNotEmpty() }
+            val drop = bridgeWords + writeWords + listOf("command", "कमांड", "ko", "को", "mein", "में")
             for ((name, pkg) in AppMap.apps) {
-                if (words.contains(name)) {
-                    val drop = bridgeWords + writeWords +
-                        listOf("command", "कमांड", "ko", "को", "mein", "में") + name.split(" ")
-                    val rest = toks.filter { it !in drop }
+                // Match the app name as whole tokens, not a substring: "battery-status" must not match the "battery" app.
+                val nameToks = name.split(" ")
+                val at = (0..toks.size - nameToks.size).firstOrNull { i ->
+                    nameToks.indices.all { j -> toks[i + j] == nameToks[j] }
+                }
+                if (at != null) {
+                    val rest = toks.filterIndexed { i, t -> (i < at || i >= at + nameToks.size) && t !in drop }
                     if (rest.isEmpty()) return null
                     val cmd = rest[0].replace('_', '-')
                     if (!BridgeContract.isValidCommand(cmd)) return null
