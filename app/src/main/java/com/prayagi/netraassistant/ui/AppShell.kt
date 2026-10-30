@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prayagi.netraassistant.BuildConfigInfo
+import com.prayagi.netraassistant.fileassistant.FileAssistantScreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,7 +30,7 @@ import java.util.Locale
 @Composable
 fun AppShell() {
     var tab by remember { mutableStateOf(0) }
-    val titles = listOf("Home", "Log", "Permissions", "Privacy")
+    val titles = listOf("Home", "Files", "Log", "Permissions", "Privacy")
     Scaffold(
         topBar = {
             Column {
@@ -55,8 +56,9 @@ fun AppShell() {
         ) {
             when (tab) {
                 0 -> HomeScreen()
-                1 -> LogScreen()
-                2 -> PermissionsScreen()
+                1 -> FileAssistantScreen()
+                2 -> LogScreen()
+                3 -> PermissionsScreen()
                 else -> PrivacyScreen()
             }
         }
