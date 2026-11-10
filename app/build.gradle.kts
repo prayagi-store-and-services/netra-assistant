@@ -36,7 +36,16 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = if (hasKey) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
+            // Never ship a debug-signed release: fail only when a release task is actually requested,
+            // so debug builds and CI without a keystore keep working.
+            if (hasKey) signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    gradle.taskGraph.whenReady {
+        val releaseRequested = allTasks.any { it.path.endsWith(":assembleRelease") || it.path.endsWith(":bundleRelease") }
+        if (releaseRequested && !hasKey) {
+            throw GradleException("Release build refused: keystore.properties is missing. A production release must use the release keystore; debug signing is not allowed for releases.")
         }
     }
     compileOptions {
