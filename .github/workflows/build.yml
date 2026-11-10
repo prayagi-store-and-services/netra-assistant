@@ -23,5 +23,6 @@ jobs:
         run: gradle :app:assembleDebug --no-daemon
       - uses: actions/upload-artifact@v7
         with:
+          retention-days: 3
           name: netra-assistant-debug
           path: app/build/outputs/apk/debug/*.apk
