@@ -3,7 +3,6 @@ package com.prayagi.netraassistant.voice
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +21,8 @@ import java.util.Locale
 /**
  * Voice input (speech recognition) and output (text to speech).
  * Recognition is on-device only unless the user explicitly opts in to the online recognizer.
- * Spoken replies hold audio focus so other media pauses, then resumes when speech ends.
+ * Spoken replies never take audio focus or interrupt other media; while any media is
+ * playing, the reply is skipped instead of spoken.
  */
 class VoiceEngine(private val app: Context) {
     var status by mutableStateOf("Tap the mic and speak.")
@@ -42,7 +42,6 @@ class VoiceEngine(private val app: Context) {
     private var recognizer: SpeechRecognizer? = null
     private var tts: TextToSpeech? = null
     private val audio = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private var focus: AudioFocusRequest? = null
 
     init {
         tts = TextToSpeech(app) { st ->
@@ -136,16 +135,13 @@ class VoiceEngine(private val app: Context) {
             onDone()
             return
         }
+        // Netra rule: never interrupt, pause, duck or take focus from playing media - skip.
+        if (mediaPlaying()) {
+            status = "Media is playing, so the reply was not spoken."
+            onDone()
+            return
+        }
         t.setLanguage(Locale("en", "IN"))
-        val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANT)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build()
-            ).build()
-        focus = req
-        audio.requestAudioFocus(req)
         speaking = true
         t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
@@ -153,13 +149,36 @@ class VoiceEngine(private val app: Context) {
             @Deprecated("Deprecated in Java")
             override fun onError(utteranceId: String?) { main.post { finishSpeech(); onDone() } }
         })
+        // Recheck at the moment of speech: media may have started just now.
+        if (mediaPlaying()) {
+            speaking = false
+            status = "Media is playing, so the reply was not spoken."
+            onDone()
+            return
+        }
         t.speak(text, TextToSpeech.QUEUE_FLUSH, null, "netra-reply")
+    }
+
+    /**
+     * True while any media is actively playing: the music-active flag, or any active playback
+     * session with media, game or unknown usage (the system's active playback configuration
+     * list holds only players that are playing right now).
+     * Fail closed: an unreadable playback state counts as playing, so the reply is skipped.
+     */
+    private fun mediaPlaying(): Boolean = try {
+        audio.isMusicActive || audio.activePlaybackConfigurations.any {
+            it.audioAttributes.usage in setOf(
+                AudioAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_GAME,
+                AudioAttributes.USAGE_UNKNOWN,
+            )
+        }
+    } catch (e: Exception) {
+        true
     }
 
     private fun finishSpeech() {
         speaking = false
-        focus?.let { audio.abandonAudioFocusRequest(it) }
-        focus = null
     }
 
     fun stopSpeaking() {
