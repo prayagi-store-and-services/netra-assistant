@@ -1,16 +1,17 @@
 # Security policy
 
 ## Supported versions
-Only the latest pre-release (currently 0.7.0-beta.1) is supported. Older betas get no fixes.
+Only the latest pre-release (currently 0.7.1-beta.1) is supported. Older betas get no fixes.
 
 ## Reporting a vulnerability
 Use the Security tab of this repository (private vulnerability reporting) if it is shown. If it is not, open an issue that says only that you have a security report and no details, and the maintainer will arrange a private channel. Please do not post exploit details publicly.
 
-## Privacy and data (0.7.0-beta.1)
+## Privacy and data (0.7.1-beta.1)
 - Everything runs on the phone. The app declares no INTERNET permission and sends nothing.
 - Voice is turned into text by the phone's on-device recognizer when the phone supports it. If not, voice shows "Unavailable". Online voice is OFF unless the user allows it in the app; if allowed, the phone's speech service sends the audio to Google's servers (the app itself still has no internet access). The choice lasts until the app is closed.
 - The app does not record or save audio. Messages are not saved after the app closes in this beta.
 - No analytics, no accounts, no API keys, no billing.
+- Spoken replies never take audio focus and never pause or duck other apps' media; while any media is playing, the reply is skipped instead of spoken.
 - HTTPS only: the app refuses cleartext (http) traffic and trusts system certificate authorities only (network security config).
 - Family Bridge (Stage 2): on a confirmed command only, the app sends an explicit on-device broadcast (action com.prayagi.netra.BRIDGE_COMMAND) to the one Netra family app the user named. The broadcast carries the command name, its args, a random request id, the contract version and this app's package name - nothing else, and it never leaves the phone. The family app then acts under its own permissions. If no family app has a bridge receiver, the app says so instead of pretending.
 
