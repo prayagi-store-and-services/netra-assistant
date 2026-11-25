@@ -100,4 +100,8 @@ class CommandParserTest {
     @Test fun smsOverlongRecipientRejected() {
         assertNull(CommandParser.parse("sms likho 1234567890123456 ki Hi"))
     }
+    @Test fun smsAmbiguousNumericBodyWithoutSeparatorIsRejected() {
+        assertNull(CommandParser.parse("sms likho 9876543210 500 tomorrow"))
+        assertNull(CommandParser.parse("sms likho 9876543210 500"))
+    }
 }

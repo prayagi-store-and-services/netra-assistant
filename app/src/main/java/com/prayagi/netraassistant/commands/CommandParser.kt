@@ -90,7 +90,11 @@ object CommandParser {
                     body = body.substring(match.range.last + 1)
                 }
             }
-            body = body.replaceFirst(Regex("^(?:ki|ke|की|कि|के|:)(?:\\s+|$)", RegexOption.IGNORE_CASE), "")
+            val separator = Regex("^(?:ki|ke|की|कि|के|:)(?:\\s+|$)", RegexOption.IGNORE_CASE)
+            // Whitespace-separated numeric groups need an explicit body separator. Otherwise
+            // message digits cannot safely be distinguished from formatted recipient digits.
+            if (recipient.value.any { it.isWhitespace() } && !separator.containsMatchIn(body)) return null
+            body = body.replaceFirst(separator, "")
             return PhoneCommand.Sms(num, body.trim())
         }
 
