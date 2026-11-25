@@ -73,6 +73,27 @@ object CommandParser {
         val low = text.lowercase()
         val tk = tokens(low)
 
+        // Parse SMS before its message body can be mistaken for an alarm/call command.
+        if (has(tk, smsWords) && has(tk, writeWords)) {
+            val recipient = Regex("(?<![\\p{L}\\p{N}+])\\+?\\p{Nd}(?:[\\p{Nd} ()-]*\\p{Nd})?").find(text)
+                ?: return null
+            val num = recipient.value.filter { it.isDigit() || it == '+' }
+            if (num.count { it.isDigit() } !in 5..15) return null
+            var body = text.substring(recipient.range.last + 1).trimStart()
+            // Drop only complete framing words, retaining original message case/punctuation.
+            val framing = (smsWords + writeWords + listOf("par", "pe", "ko", "की", "पर", "को"))
+                .sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
+            val prefix = Regex("^(?:$framing)(?=\\s|$)\\s*", RegexOption.IGNORE_CASE)
+            if (!has(tokens(text.substring(0, recipient.range.first).lowercase()), smsWords)) {
+                while (true) {
+                    val match = prefix.find(body) ?: break
+                    body = body.substring(match.range.last + 1)
+                }
+            }
+            body = body.replaceFirst(Regex("^(?:ki|ke|की|कि|के|:)(?:\\s+|$)", RegexOption.IGNORE_CASE), "")
+            return PhoneCommand.Sms(num, body.trim())
+        }
+
         // Alarm: "alarm lagao 6 baje", "अलार्म 6:30"
         if (has(tk, alarmWords)) {
             val time = parseTime(tk) ?: return null
@@ -83,18 +104,6 @@ object CommandParser {
         if (has(tk, callWords) || (has(tk, listOf("call")) && has(tk, writeWords))) {
             val num = digitsFrom(text)
             return if (num.isNotEmpty()) PhoneCommand.Call(num) else null
-        }
-
-        // SMS: "sms likho 98765... ki ...", "98765... par message bhejo ..."
-        if (has(tk, smsWords) && has(tk, writeWords)) {
-            val num = digitsFrom(text)
-            if (num.isEmpty()) return null
-            val idx = low.indexOf(num)
-            var body = if (idx >= 0) low.substring(idx + num.length) else ""
-            body = body.trim().removePrefix("par").removePrefix("pe").removePrefix("ko")
-                .removePrefix("ki").removePrefix("ke").removePrefix(":").trim()
-                .removePrefix("yeh").removePrefix("ye").trim()
-            return PhoneCommand.Sms(num, body)
         }
 
         // Bridge to a Netra family app: "bridge eco battery-status", "battery ko bridge low-power bhejo"
