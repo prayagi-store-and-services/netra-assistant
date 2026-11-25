@@ -59,4 +59,49 @@ class CommandParserTest {
         assertNull(CommandParser.parse("battery kitni hai"))
         assertNull(CommandParser.parse("what is the time"))
     }
+    @Test fun smsBodyDigitsNeverJoinRecipient() {
+        val c = CommandParser.parse("sms likho 9876543210 ki Pay 500 at Gate A") as PhoneCommand.Sms
+        assertEquals("9876543210", c.number)
+        assertEquals("Pay 500 at Gate A", c.body)
+    }
+    @Test fun smsFormattedRecipientKeepsBody() {
+        val c = CommandParser.parse("sms likho +91 98765 43210 ki Meet at 6:30") as PhoneCommand.Sms
+        assertEquals("+919876543210", c.number)
+        assertEquals("Meet at 6:30", c.body)
+    }
+    @Test fun smsRecipientBeforeCommandWords() {
+        val c = CommandParser.parse("9876543210 par message bhejo Hello 25") as PhoneCommand.Sms
+        assertEquals("9876543210", c.number)
+        assertEquals("Hello 25", c.body)
+    }
+    @Test fun smsPrefixLikeBodyIsNotStripped() {
+        val c = CommandParser.parse("sms likho 9876543210 ki keyboard 123") as PhoneCommand.Sms
+        assertEquals("keyboard 123", c.body)
+    }
+    @Test fun smsEmptyBodyRemainsEmpty() {
+        val c = CommandParser.parse("sms likho 9876543210") as PhoneCommand.Sms
+        assertEquals("9876543210", c.number)
+        assertEquals("", c.body)
+    }
+    @Test fun smsBodyAlarmOrCallDoesNotExecuteAnotherCommand() {
+        val c = CommandParser.parse("sms likho 9876543210 ki call after alarm 6:30") as PhoneCommand.Sms
+        assertEquals("9876543210", c.number)
+        assertEquals("call after alarm 6:30", c.body)
+    }
+    @Test fun smsNoSeparatorKeepsBodyCommandWords() {
+        val c = CommandParser.parse("sms likho 9876543210 send Help") as PhoneCommand.Sms
+        assertEquals("send Help", c.body)
+    }
+    @Test fun smsHyphenatedRecipient() {
+        val c = CommandParser.parse("sms likho 98765-43210 ki Hello") as PhoneCommand.Sms
+        assertEquals("9876543210", c.number)
+        assertEquals("Hello", c.body)
+    }
+    @Test fun smsOverlongRecipientRejected() {
+        assertNull(CommandParser.parse("sms likho 1234567890123456 ki Hi"))
+    }
+    @Test fun smsAmbiguousNumericBodyWithoutSeparatorIsRejected() {
+        assertNull(CommandParser.parse("sms likho 9876543210 500 tomorrow"))
+        assertNull(CommandParser.parse("sms likho 9876543210 500"))
+    }
 }
