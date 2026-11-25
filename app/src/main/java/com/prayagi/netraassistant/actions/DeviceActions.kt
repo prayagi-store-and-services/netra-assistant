@@ -54,14 +54,13 @@ class DeviceActions(private val context: Context) {
         val info = battery()
         if (info is Result.Value && info.v.charging) {
             Result.Unavailable("phone is charging, discharge time cannot be estimated")
-        } else if (counterUah <= 0L || nowUa == 0L || nowUa == Long.MIN_VALUE) {
-            Result.Unavailable("this phone does not report remaining charge or current draw")
         } else {
-            // Units differ by device (uA or mA); values above 20000 are treated as uA.
-            val drawMa = Math.abs(nowUa).let { if (it > 20000L) it / 1000.0 else it.toDouble() }
-            val capMah = counterUah / 1000.0
-            if (drawMa < 1.0 || capMah < 1.0) Result.Unavailable("draw or charge reading too small to trust")
-            else Result.Value(BatteryTime(capMah / drawMa, drawMa.toInt()))
+            val estimate = BatteryTimeMath.estimate(counterUah, nowUa)
+            if (estimate == null) {
+                Result.Unavailable("this phone does not report a usable discharge reading")
+            } else {
+                Result.Value(BatteryTime(estimate.hours, estimate.drawMa))
+            }
         }
     } catch (e: Exception) {
         Result.Unavailable("battery time read failed")
